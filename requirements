@@ -12,3 +12,15 @@ nltk
 spacy
 
 pip install -r requirements.txt
+
+
+Flask==2.0.3
+pymongo==4.0.1
+redis==4.1.0
+nltk==3.6.7
+spacy==3.2.1
+
+pip install -r requirements.txt
+
+pip freeze > requirements.txt
+
