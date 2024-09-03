@@ -36,3 +36,6 @@ pymongo
 redis
 nltk
 spacy
+
+
+python3 -m unittest discover tests
