@@ -1,0 +1,92 @@
+
+### Directory Structure:
+
+```
+src/
+    static/
+        css/
+            style.css
+        js/
+            script.js
+        images/
+            logo.png
+```
+
+### **`src/static/css/style.css`**
+
+```css
+/* Basic stylesheet for Tilly app */
+
+/* Example styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+}
+```
+
+### **`src/static/js/script.js`**
+
+```javascript
+// Basic JavaScript for Tilly app
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Tilly app loaded');
+    
+    // Example functionality
+    document.getElementById('exampleButton').addEventListener('click', function() {
+        alert('Button clicked!');
+    });
+});
+```
+
+### **`src/static/images/logo.png`**
+
+- **`logo.png`**: This is a placeholder for your logo or other images. You should replace it with your actual image files.
+
+### Usage:
+1. **Serving Static Files**:
+   Flask automatically serves files in the `static` directory. To access these files, you use a URL path like `/static/css/style.css` for CSS files, `/static/js/script.js` for JavaScript files, and `/static/images/logo.png` for images.
+   
+   In your HTML templates, you can include these static files like this:
+   ```html
+   <!DOCTYPE html>
+   <html lang="en">
+   <head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <title>Tilly App</title>
+       <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+   </head>
+   <body>
+       <header>
+           <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Tilly Logo">
+       </header>
+       <div class="container">
+           <button id="exampleButton">Click Me</button>
+       </div>
+       <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+   </body>
+   </html>
+   ```
+
+### Benefits:
+- **Separation of Concerns**: Keeps static assets separate from dynamic application code, making the project structure cleaner.
+- **Easy Access**: Flask's `static` folder is automatically served at the `/static` endpoint, making it easy to reference static assets in your HTML.
+- **Organized Resources**: Helps organize your CSS, JavaScript, and images in a structured way, improving maintainability.
+
+Including a `static` directory allows you to manage and serve static assets efficiently, ensuring that your web application's user interface is styled and functional.
