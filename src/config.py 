@@ -1,0 +1,37 @@
+import os
+
+class Config:
+    # General Configurations
+    DEBUG = False
+    TESTING = False
+    SECRET_KEY = os.getenv('SECRET_KEY', 'your_secret_key_here')
+    
+    # Database Configurations
+    MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/tilly_db')
+    
+    # Redis Configurations
+    REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
+    REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
+    REDIS_DB = int(os.getenv('REDIS_DB', 0))
+    
+class DevelopmentConfig(Config):
+    DEBUG = True
+    MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/tilly_dev_db')
+
+class TestingConfig(Config):
+    TESTING = True
+    MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/tilly_test_db')
+    REDIS_DB = int(os.getenv('REDIS_TEST_DB', 1))
+
+class ProductionConfig(Config):
+    MONGO_URI = os.getenv('MONGO_URI', 'mongodb://prod-db-server:27017/tilly_prod_db')
+
+# Choose the appropriate configuration
+config_by_name = {
+    'development': DevelopmentConfig,
+    'testing': TestingConfig,
+    'production': ProductionConfig
+}
+
+def get_config(env):
+    return config_by_name.get(env, Config)
