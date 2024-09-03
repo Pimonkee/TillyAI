@@ -1,0 +1,14 @@
+numpy
+scipy
+pandas
+scikit-learn
+tensorflow
+keras
+flask
+django
+pymongo
+redis
+nltk
+spacy
+
+pip install -r requirements.txt
