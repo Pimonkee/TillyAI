@@ -14,7 +14,7 @@ Tilly is an AI assistant with advanced capabilities including natural language p
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/tilly.git
+   git clone https://github.com/pimonkee/tilly.git
    cd tilly
 
 ./build_tilly.sh
