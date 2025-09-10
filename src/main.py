@@ -1,47 +1,56 @@
-import os
-import sys
-from flask import Flask, request, jsonify
-import pymongo
-import redis
+from src import create_app
 import nltk
-import spacy
 
-# Initialize Flask app
-app = Flask(__name__)
+try:
+    import spacy
+    SPACY_AVAILABLE = True
+except ImportError:
+    SPACY_AVAILABLE = False
+    print("Warning: spaCy not installed. Install with: pip install spacy")
 
-# Initialize MongoDB client
-mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
-db = mongo_client["tilly_db"]
 
-# Initialize Redis client
-redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
+def initialize_nlp():
+    """Initialize NLP libraries."""
+    try:
+        nltk.download('punkt', quiet=True)
+        if SPACY_AVAILABLE:
+            # Note: spacy model needs to be installed: python -m spacy download en_core_web_sm
+            try:
+                nlp = spacy.load("en_core_web_sm")
+                return nlp
+            except OSError:
+                print("Warning: spaCy model 'en_core_web_sm' not found. Install with: python -m spacy download en_core_web_sm")
+                return None
+        return None
+    except Exception as e:
+        print(f"Warning: Error initializing NLP: {e}")
+        return None
 
-# Initialize NLP tools
-nltk.download('punkt')
-spacy_model = spacy.load("en_core_web_sm")
-
-# Example route for testing
-@app.route('/tilly', methods=['POST'])
-def tilly_response():
-    user_input = request.json.get("text")
-    response = process_input(user_input)
-    return jsonify({"response": response})
 
 def process_input(text):
-    # Example NLP processing
-    tokens = nltk.word_tokenize(text)
-    doc = spacy_model(text)
-    entities = [(ent.text, ent.label_) for ent in doc.ents]
+    """Process text input using NLP tools."""
+    # Initialize NLP
+    nlp = initialize_nlp()
     
-    # Example MongoDB interaction
-    db.responses.insert_one({"input": text, "tokens": tokens, "entities": entities})
+    # Basic NLP processing
+    try:
+        tokens = nltk.word_tokenize(text)
+    except LookupError:
+        # If punkt tokenizer not downloaded, use simple split
+        tokens = text.split()
+    
+    entities = []
+    
+    if nlp:
+        doc = nlp(text)
+        entities = [(ent.text, ent.label_) for ent in doc.ents]
+    
+    return f"Received {text}. Tokens: {len(tokens)}, Entities: {entities}"
 
-    # Example Redis interaction
-    redis_client.set('last_input', text)
 
-    # Example response generation (this should be much more complex in a real implementation)
-    return f"Received {text}. Extracted entities: {entities}"
+# Create the Flask application
+app = create_app('development')
+
 
 if __name__ == "__main__":
-    # Run the Flask app
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000, debug=True)

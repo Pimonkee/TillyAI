@@ -1,55 +1,51 @@
-
-### **`build_tilly.sh`**
-
-```bash
 #!/bin/bash
 
-# Script to build and set up Tilly in Termux
+# Script to build and set up TillyAI
 
-# Update and upgrade Termux packages
-echo "Updating Termux packages..."
-pkg update -y && pkg upgrade -y
+echo "Setting up TillyAI environment..."
 
-# Install Python and Git
-echo "Installing Python and Git..."
-pkg install python git -y
+# Update system packages (for Termux/Linux)
+if command -v pkg > /dev/null; then
+    echo "Updating Termux packages..."
+    pkg update -y && pkg upgrade -y
+    pkg install python git -y
+elif command -v apt-get > /dev/null; then
+    echo "Updating system packages..."
+    sudo apt-get update && sudo apt-get upgrade -y
+    sudo apt-get install python3 python3-pip git -y
+fi
 
-# Install necessary packages
-echo "Installing required packages..."
+# Install Python dependencies
+echo "Installing Python dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Setting up directories
-echo "Setting up project directories..."
-mkdir -p ~/tilly/src ~/tilly/tests
+# Download spaCy language model (optional)
+echo "Downloading spaCy language model (optional)..."
+python -m spacy download en_core_web_sm || echo "spaCy model download failed - continuing without it"
 
-# Clone the repository
-echo "Cloning the Tilly repository..."
-git clone https://github.com/yourusername/tilly.git ~/tilly
+# Create necessary directories
+echo "Creating project directories..."
+mkdir -p logs data
 
-# Move to the project directory
-cd ~/tilly
+# Create a run script
+echo "Creating run script..."
+cat > run_tilly.py << 'EOF'
+#!/usr/bin/env python3
+import sys
+import os
 
-# Running the main application (Optional)
-echo "Running Tilly..."
-python3 src/main.py
+# Add current directory to Python path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-echo "Tilly has been successfully built and is running!"
-```
+from src.main import app
 
-### Description:
-- **Updating Termux Packages**: The script starts by updating and upgrading the Termux packages to ensure everything is up to date.
-- **Installing Python and Git**: Installs Python and Git, which are essential for running Tilly and managing the repository.
-- **Installing Python Packages**: Uses `pip` to install all the Python packages listed in `requirements.txt`.
-- **Setting up Directories**: Creates the necessary project directories (like `src` and `tests`).
-- **Cloning the Repository**: Clones your GitHub repository to the `~/tilly` directory in Termux.
-- **Running the Application**: Optionally runs the main application after setup.
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
+EOF
 
-### Usage:
-To use this script, simply navigate to your repository directory in Termux and execute the script:
+chmod +x run_tilly.py
 
-```bash
-./build_tilly.sh
-```
-
-This script streamlines the entire setup process, making it easy to get Tilly up and running in a Termux environment.
+echo "TillyAI setup completed successfully!"
+echo "To run the application: python3 run_tilly.py"
+echo "Or with PYTHONPATH: PYTHONPATH=. python3 src/main.py"
